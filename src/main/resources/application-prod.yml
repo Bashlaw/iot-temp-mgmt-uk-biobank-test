@@ -1,0 +1,15 @@
+spring:
+  main:
+    allow-bean-definition-overriding: false
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST_LIVE}:5432/${POSTGRES_DB_LIVE}
+    username: ${POSTGRES_USER_LIVE}
+    password: ${POSTGRES_PASSWORD_LIVE}
+  jpa:
+    hibernate:
+      ddl-auto: ${HIBERNATE_DDL_AUTO_LIVE}
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: ${SHOW_SQL_LIVE}

@@ -1,0 +1,34 @@
+services:
+  temp_mgmt_postgresDB_service:
+    image: postgres
+    restart: always
+    container_name: temp_mgmt_postgresDB_service
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/pgdata
+    env_file: ./project.env
+
+  temp_mgmt_backend_service:
+    depends_on:
+      - temp_mgmt_postgresDB_service
+    build: ./
+    container_name: temp_mgmt_backend_service
+    image: temp_mgmt_backend_image
+    ports:
+      - "8080:8080"
+    links:
+      - temp_mgmt_postgresDB_service:database
+    env_file:
+      - project.env
+
+
+volumes:
+  conf:
+  data:
+  import:
+  logs:
+  plugins:
+  sqlvolume:
+  uploads:
+  pgdata:
