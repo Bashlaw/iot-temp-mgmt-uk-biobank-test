@@ -8,6 +8,12 @@ import uk.biobank.iottempmgmtukbiobanktest.entity.TemperatureRecord;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Repository interface for managing TemperatureRecord entities.
+ * <p>
+ * Extends JpaRepository to provide basic CRUD operations and custom queries
+ * for interacting with the temperature records data.
+ */
 public interface TemperatureRecordRepository extends JpaRepository<TemperatureRecord, Long> {
 
     List<TemperatureRecord> findByDeviceNameAndTimeBetween(String deviceName , LocalDateTime start , LocalDateTime end);

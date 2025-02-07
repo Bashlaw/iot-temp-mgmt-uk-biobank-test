@@ -12,6 +12,10 @@ import uk.biobank.iottempmgmtukbiobanktest.utils.service.GeneralService;
 
 import java.util.List;
 
+/**
+ * Controller responsible for handling temperature records related operations
+ * such as ingestion, retrieval, and deletion.
+ */
 @CrossOrigin
 @RestController
 @RequestMapping("/api/v1/temperatureRecord")
@@ -27,17 +31,13 @@ public class TemperatureRecordController {
 
     @PostMapping("/processRecords")
     public Response ingestTemperatures(@RequestBody List<TemperatureRecordDTO> records) {
-
         return generalService.prepareSuccessResponse(temperatureRecordService.processRecords(records));
-
     }
 
     @GetMapping("/average-temperature")
     @Cacheable(value = "averageTemperature", key = "#deviceName + #date + #hour")
     public Response getAverageTemperature(@RequestParam String deviceName , @RequestParam String date , @RequestParam int hour) {
-
         return generalService.prepareSuccessResponse(temperatureRecordService.calculateAverageTemperature(deviceName , date , hour));
-
     }
 
     @GetMapping("/all")

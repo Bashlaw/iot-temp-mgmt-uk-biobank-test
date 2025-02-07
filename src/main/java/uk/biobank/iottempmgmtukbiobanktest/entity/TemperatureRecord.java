@@ -11,6 +11,26 @@ import uk.biobank.iottempmgmtukbiobanktest.utils.DateUtil;
 
 import java.time.LocalDateTime;
 
+/**
+ * Represents a record of a temperature measurement obtained from a device.
+ * This entity is mapped to the "temperature_records" table in the database.
+ * <p>
+ * The class includes details such as the device name, location, recorded temperature,
+ * the time of measurement, and metadata like the creation timestamp.
+ * <p>
+ * The entity also ensures proper indexing for efficient querying based on device name and location.
+ * <p>
+ * Attributes:
+ * - id: Unique identifier for the record, auto-generated.
+ * - deviceName: Name of the device that recorded the temperature.
+ * - location: Location where the temperature was recorded.
+ * - temperature: Measured temperature value.
+ * - time: The time when the temperature was recorded.
+ * - createdAt: The timestamp when the record was created.
+ * <p>
+ * The class provides a utility method to transform a TemperatureRecord entity
+ * into a corresponding data transfer object (TemperatureRecordDTO).
+ */
 @Getter
 @Setter
 @ToString

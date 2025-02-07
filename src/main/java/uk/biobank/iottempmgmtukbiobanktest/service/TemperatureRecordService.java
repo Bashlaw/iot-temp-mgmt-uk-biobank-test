@@ -7,6 +7,11 @@ import uk.biobank.iottempmgmtukbiobanktest.utils.dto.PageableRequestDTO;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Service interface for managing temperature records in the application. This service provides
+ * methods for processing, retrieving, and deleting temperature records. It also includes
+ * functionality to calculate the average temperature based on specific conditions.
+ */
 public interface TemperatureRecordService {
 
     Map<String, String> processRecords(List<TemperatureRecordDTO> records);

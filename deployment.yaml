@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iot-temp-mgmt-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: iot-temp-mgmt
+  template:
+    metadata:
+      labels:
+        app: iot-temp-mgmt
+    spec:
+      containers:
+        - name: iot-temp-mgmt-container
+          image: bashlaw/iot-temp-mgmt-uk-biobank-test:0.0.1-SNAPSHOT
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: iot-temp-mgmt-config
+            - secretRef:
+                name: iot-temp-mgmt-secret
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+            requests:
+              memory: "256Mi"
+              cpu: "250m"

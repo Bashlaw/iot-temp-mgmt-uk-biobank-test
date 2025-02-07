@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: iot-temp-mgmt-config
+data:
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres-service:5432/temp_mgmt"
+  SPRING_PROFILES_ACTIVE: "prod"
