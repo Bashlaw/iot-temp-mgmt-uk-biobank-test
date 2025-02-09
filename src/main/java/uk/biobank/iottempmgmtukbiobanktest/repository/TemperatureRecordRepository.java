@@ -16,6 +16,8 @@ import java.util.List;
  */
 public interface TemperatureRecordRepository extends JpaRepository<TemperatureRecord, Long> {
 
+    boolean existsByDeviceNameAndTime(String deviceName , LocalDateTime time);
+
     List<TemperatureRecord> findByDeviceNameAndTimeBetween(String deviceName , LocalDateTime start , LocalDateTime end);
 
     Page<TemperatureRecord> findByDeviceName(String deviceName, Pageable pageable);

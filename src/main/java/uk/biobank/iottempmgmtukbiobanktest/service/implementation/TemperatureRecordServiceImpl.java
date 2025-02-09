@@ -13,8 +13,8 @@ import uk.biobank.iottempmgmtukbiobanktest.utils.DateUtil;
 import uk.biobank.iottempmgmtukbiobanktest.utils.dto.PageableRequestDTO;
 import uk.biobank.iottempmgmtukbiobanktest.utils.service.GeneralService;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,7 +39,8 @@ public class TemperatureRecordServiceImpl implements TemperatureRecordService {
     }
 
     /**
-     * Processes a list of temperature records, saving valid records to the repository,
+     * Processes a list of temperature records,
+     * saving valid records to the repository, making sure to handle duplicates,
      * and collecting records with missing temperature readings.
      *
      * @param records a list of TemperatureRecordDTO objects representing temperature readings to be processed
@@ -51,9 +52,20 @@ public class TemperatureRecordServiceImpl implements TemperatureRecordService {
 
         records.parallelStream().forEach(record -> {
             if (record.getTemperature() == null) {
-                missingReadings.put(record.getDeviceName() , "Missing reading at " + record.getTime());
+                String message = "Missing reading at " + record.getTime();
+                missingReadings.put(record.getDeviceName(), message);
             } else {
-                executor.execute(() -> temperatureRecordRepository.save(convertToTemperatureRecord(record)));
+                executor.execute(() -> {
+                    // Check if a record already exists for this device and time
+                    boolean exists = temperatureRecordRepository
+                            .existsByDeviceNameAndTime(record.getDeviceName(), LocalDateTime.parse(record.getTime()));
+
+                    if (!exists) {
+                        temperatureRecordRepository.save(convertToTemperatureRecord(record));
+                    } else {
+                        log.warn("Duplicate record skipped for device: {} at time: {}", record.getDeviceName(), record.getTime());
+                    }
+                });
             }
         });
 
@@ -64,29 +76,20 @@ public class TemperatureRecordServiceImpl implements TemperatureRecordService {
      * Calculates the average temperature for a specific device within a given hour of a specified date.
      *
      * @param deviceName the name of the device for which the temperature records are required
-     * @param date the date in the format "yyyy-MM-dd" for which the temperature is to be calculated
-     * @param hour the specific hour (in 24-hour format) for which the temperature is to be calculated
+     * @param date       the date in the format "yyyy-MM-dd" for which the temperature is to be calculated
+     * @param hour       the specific hour (in 24-hour format) for which the temperature is to be calculated
      * @return the average temperature as a Double for the given parameters; returns Double.NaN if no records are found
      */
     @Override
     public Double calculateAverageTemperature(String deviceName , String date , int hour) {
-        Calendar start = Calendar.getInstance();
-        start.set(Calendar.YEAR , Integer.parseInt(date.substring(0 , 4)));
-        start.set(Calendar.MONTH , Integer.parseInt(date.substring(5 , 7)) - 1);
-        start.set(Calendar.DAY_OF_MONTH , Integer.parseInt(date.substring(8 , 10)));
-        start.set(Calendar.HOUR_OF_DAY , hour);
-        start.set(Calendar.MINUTE , 0);
-        start.set(Calendar.SECOND , 0);
 
-        Calendar end = (Calendar) start.clone();
-        end.add(Calendar.HOUR_OF_DAY , 1);
+        LocalDateTime startDateTime = LocalDate.parse(date).atTime(hour , 0); // Combines date and hour
+        LocalDateTime endDateTime = startDateTime.plusHours(1); // Adds one hour
 
-        LocalDateTime startTime = DateUtil.dateToLocalDateTime(start.getTime()).withNano(0);
-        LocalDateTime endTime = DateUtil.dateToLocalDateTime(end.getTime()).withNano(0);
 
-        log.info("Start => {} and end => {}" , startTime , endTime);
+        log.info("Start => {} and end => {}" , startDateTime , endDateTime);
 
-        List<TemperatureRecord> records = temperatureRecordRepository.findByDeviceNameAndTimeBetween(deviceName , startTime , endTime);
+        List<TemperatureRecord> records = temperatureRecordRepository.findByDeviceNameAndTimeBetween(deviceName , startDateTime , endDateTime);
 
         return records.stream().mapToDouble(TemperatureRecord::getTemperature).average().orElse(Double.NaN);
     }
@@ -111,7 +114,7 @@ public class TemperatureRecordServiceImpl implements TemperatureRecordService {
      * Retrieves all temperature records associated with a specific device name.
      *
      * @param deviceName the name of the device for which temperature records are to be retrieved
-     * @param dto the pageable request object containing pagination and sorting information
+     * @param dto        the pageable request object containing pagination and sorting information
      * @return a DTO containing a list of temperature records and pagination details
      */
     @Override

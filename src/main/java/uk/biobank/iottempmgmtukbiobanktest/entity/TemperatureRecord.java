@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
  * The class includes details such as the device name, location, recorded temperature,
  * the time of measurement, and metadata like the creation timestamp.
  * <p>
+ * The entity ensures the uniqueness of temperature records based on device name and time.
  * The entity also ensures proper indexing for efficient querying based on device name and location.
  * <p>
  * Attributes:
@@ -39,6 +40,8 @@ import java.time.LocalDateTime;
 @Table(name = "temperature_records", indexes = {
         @Index(name = "idx_temperaturerecord_device_name", columnList = "deviceName") ,
         @Index(name = "idx_temperaturerecord_location", columnList = "location")
+}, uniqueConstraints = {
+        @UniqueConstraint(name = "uc_temperaturerecord_device_name_time", columnNames = {"device_name" , "time"})
 })
 public class TemperatureRecord {
 
